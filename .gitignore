@@ -1,0 +1,16 @@
+# Dependency directories
+/node_modules/
+
+# IDE settings
+.idea/
+.DS_Store
+
+# any environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# Optional eslint cache
+.eslintcache
