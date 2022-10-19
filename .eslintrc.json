@@ -39,6 +39,10 @@
       {
         "namedComponents": "arrow-function"
       }
-    ]
+    ],
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-props-no-spreading": "off",
+    "spaced-comment": "off",
+    "no-console": "off"
   }
 }
