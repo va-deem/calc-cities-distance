@@ -1,27 +1,26 @@
 import dayjs from 'dayjs';
-import { FieldValueType } from '../types';
+import { FieldValueType, FormValues, ICityField } from '../types';
 
-interface FormValues {
-  [key: string]: FieldValueType;
-}
+const processFormData = (formValues: FormValues, cityFields: ICityField[]) => {
+  const newFormValues = Object.entries(formValues).map(
+    (el: [string, FieldValueType]): [string, string] => {
+      const [name, value] = el;
 
-const processFormData = (data: FormValues) => {
-  const predicate = (el: [string, FieldValueType]): [string, string] => {
-    const [name, value] = el;
-
-    if (name === 'origin' || name === 'destination') {
-      const cityName = Array.isArray(value) ? value[0] : '';
-      return [name, cityName];
+      if (name === 'date') {
+        const date = dayjs.isDayjs(value) ? value.format('YYYY-MM-DD') : '';
+        return [name, date];
+      }
+      return [name, String(value)];
     }
+  );
 
-    if (name === 'date') {
-      const date = dayjs.isDayjs(value) ? value.format('YYYY-MM-DD') : '';
-      return [name, date];
-    }
-    return [name, String(value)];
-  };
+  const newCityFields = cityFields.map((f, idx): [string, string] => {
+    const name = `city_${idx}`;
+    const value = Array.isArray(f.value) ? f.value[0] : '';
+    return [name, value];
+  });
 
-  return Object.entries(data).map(predicate);
+  return newFormValues.concat(newCityFields);
 };
 
 export default processFormData;

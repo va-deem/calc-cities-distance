@@ -13,9 +13,7 @@ interface DatePickerProps {
 }
 
 const TripDatePicker = ({ name, label, setFormField }: DatePickerProps) => {
-  const [dateValue, setDateValue] = React.useState<Dayjs | null>(
-    dayjs().add(1, 'day')
-  );
+  const [dateValue, setDateValue] = React.useState<Dayjs | null>(null);
 
   useEffect(() => {
     setFormField(name, dateValue);
