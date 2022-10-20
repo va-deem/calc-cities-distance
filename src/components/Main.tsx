@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Grid, Paper, Typography } from '@mui/material';
+import { useNavigate, createSearchParams } from 'react-router-dom';
 import Combo from './Combo';
 import { FieldValueType } from '../types';
 import TripDatePicker from './TripDatePicker';
 import PassengersInput from './PassengersInput';
+import processFormData from '../utils/processFormData';
 
 const defaultValues = {
   origin: null,
@@ -14,9 +16,23 @@ const defaultValues = {
 
 const Main = () => {
   const [formValues, setFormValues] = useState(defaultValues);
+  const [isSubmitActive, setSubmitActive] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = () => {
-    console.log('submit form');
+  useEffect(() => {
+    const hasNulls = Object.values(formValues).some((el) => el === null);
+    setSubmitActive(!hasNulls);
+  }, [formValues]);
+
+  const handleSubmit = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+
+    const processed = processFormData(formValues);
+
+    navigate({
+      pathname: '/info',
+      search: `?${createSearchParams(processed)}`,
+    });
   };
 
   const handleFormData = (name: string, value: FieldValueType) => {
@@ -25,8 +41,6 @@ const Main = () => {
       [name]: value,
     });
   };
-
-  console.log('@formValues', formValues);
 
   return (
     <Paper elevation={3} sx={{ m: 2, p: 4 }}>
@@ -64,7 +78,12 @@ const Main = () => {
             />
           </Grid>
           <Grid item xs={12} my={4}>
-            <Button variant="contained" color="primary" type="submit">
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              disabled={!isSubmitActive}
+            >
               Submit
             </Button>
           </Grid>

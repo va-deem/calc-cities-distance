@@ -2,14 +2,8 @@ import React, { useState, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
-import places from '../data/data';
 import { PlaceType } from '../types';
-
-function sleep(delay = 0) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, delay);
-  });
-}
+import getPlaces from '../services/getPlaces';
 
 interface ComboProps {
   name: string;
@@ -24,27 +18,11 @@ const Combo = ({ name, label, setFormField }: ComboProps) => {
   const loading = open && options.length === 0;
 
   useEffect(() => {
-    let active = true;
+    const fetchData = async () => setOptions(await getPlaces());
 
-    if (!loading) {
-      return undefined;
-    }
-
-    (async () => {
-      await sleep(1e3);
-
-      if (active) {
-        setOptions([...places]);
-      }
-    })();
-
-    return () => {
-      active = false;
-    };
-  }, [loading]);
-
-  useEffect(() => {
-    if (!open) {
+    if (open) {
+      fetchData();
+    } else {
       setOptions([]);
     }
   }, [open]);
