@@ -70,7 +70,7 @@ const Main = () => {
               setFormField={handleFormData}
             />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={4}>
             <PassengersInput
               name="quantity"
               label="Passengers"

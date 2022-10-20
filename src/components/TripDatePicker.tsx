@@ -29,7 +29,7 @@ const TripDatePicker = ({ name, label, setFormField }: DatePickerProps) => {
         value={dateValue}
         minDate={dayjs().add(1, 'day')}
         onChange={(newValue: Dayjs | null) => setDateValue(newValue)}
-        renderInput={(params) => <TextField {...params} />}
+        renderInput={(params) => <TextField {...params} size="small" />}
       />
     </LocalizationProvider>
   );
