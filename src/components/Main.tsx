@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState, useMemo, useRef } from 'react';
 import { Button, Grid, IconButton, Paper, Typography } from '@mui/material';
 import { useNavigate, createSearchParams } from 'react-router-dom';
 import { HighlightOff } from '@mui/icons-material';
@@ -7,35 +7,58 @@ import { FieldValueType, ICityField, PlaceType } from '../types';
 import TripDatePicker from './TripDatePicker';
 import PassengersInput from './PassengersInput';
 import processFormData from '../utils/processFormData';
+import { MainContext } from '../context/MainContext';
 
 const Main = () => {
   const [formValues, setFormValues] = useState({
     date: null,
     quantity: null,
   });
-  const [isSubmitActive, setSubmitActive] = useState(false);
   const [fields, setFields] = useState<ICityField[]>([
     { name: 'origin', label: 'City of origin', value: null },
     { name: 'destination', label: 'City of destination', value: null },
   ]);
+  const [globalErrors, setGlobalErrors] = useState<string[]>([]);
+  const [errorsCheck, setErrorsCheck] = useState(false);
   const navigate = useNavigate();
+  const didMountRef = useRef(false);
+
+  const contextValue = useMemo(
+    () => ({
+      addGlobalError: (name: string) => {
+        setGlobalErrors((prev) =>
+          prev.includes(name) ? prev : prev.concat(name)
+        );
+      },
+      removeGlobalError: (name: string) => {
+        const newErrors = globalErrors.filter(
+          (errorName) => errorName !== name
+        );
+        setGlobalErrors(newErrors);
+      },
+      errorsCheck,
+    }),
+    [globalErrors, errorsCheck]
+  );
 
   useEffect(() => {
-    const hasNulls =
-      Object.values(formValues).some((el) => el === null) ||
-      fields.some((f) => f.value === null);
-    setSubmitActive(!hasNulls);
-  }, [formValues, fields]);
+    setErrorsCheck(false);
+  }, [globalErrors.length]);
 
   const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
 
-    const processed = processFormData(formValues, fields);
+    setErrorsCheck(true);
 
-    navigate({
-      pathname: '/info',
-      search: `?${createSearchParams(processed)}`,
-    });
+    if (globalErrors && globalErrors.length === 0 && didMountRef.current) {
+      const processed = processFormData(formValues, fields);
+
+      navigate({
+        pathname: '/info',
+        search: `?${createSearchParams(processed)}`,
+      });
+    }
+    didMountRef.current = true;
   };
 
   const handleFormData = (name: string, value: FieldValueType) => {
@@ -69,6 +92,7 @@ const Main = () => {
   const handleRemoveField = (name: string) => {
     const newFields = fields.filter((f) => f.name !== name);
     setFields(newFields);
+    contextValue.removeGlobalError(name);
   };
 
   const renderPlaceInput = (name: string, label: string, idx: number) => (
@@ -89,52 +113,54 @@ const Main = () => {
   );
 
   return (
-    <Paper elevation={3} sx={{ m: 2, p: 8, width: 400 }}>
-      <Typography variant="h5" mb={2}>
-        Calculate the distance
-      </Typography>
-      <form onSubmit={handleSubmit}>
-        <Grid container spacing={3}>
-          {fields.map((f, idx: number) =>
-            renderPlaceInput(f.name, f.label, idx)
-          )}
-          <Grid item xs={12}>
-            <TripDatePicker
-              name="date"
-              label="Date of the trip"
-              setFormField={handleFormData}
-            />
+    <MainContext.Provider value={contextValue}>
+      <Paper elevation={3} sx={{ m: 2, p: 8, width: 400 }}>
+        <Typography variant="h5" mb={2}>
+          Calculate the distance
+        </Typography>
+        <form onSubmit={handleSubmit} noValidate>
+          <Grid container spacing={3}>
+            {fields.map((f, idx: number) =>
+              renderPlaceInput(f.name, f.label, idx)
+            )}
+            <Grid item xs={12}>
+              <TripDatePicker
+                name="date"
+                label="Date of the trip"
+                setFormField={handleFormData}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <PassengersInput
+                name="quantity"
+                label="Passengers"
+                setFormField={handleFormData}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                variant="text"
+                color="primary"
+                type="button"
+                onClick={handleAddField}
+              >
+                Add intermediate cities
+              </Button>
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                variant="contained"
+                color="primary"
+                type="submit"
+                disabled={!!globalErrors.length}
+              >
+                Go!
+              </Button>
+            </Grid>
           </Grid>
-          <Grid item xs={4}>
-            <PassengersInput
-              name="quantity"
-              label="Passengers"
-              setFormField={handleFormData}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Button
-              variant="text"
-              color="primary"
-              type="button"
-              onClick={handleAddField}
-            >
-              Add intermediate cities
-            </Button>
-          </Grid>
-          <Grid item xs={12}>
-            <Button
-              variant="contained"
-              color="primary"
-              type="submit"
-              disabled={!isSubmitActive}
-            >
-              Go!
-            </Button>
-          </Grid>
-        </Grid>
-      </form>
-    </Paper>
+        </form>
+      </Paper>
+    </MainContext.Provider>
   );
 };
 

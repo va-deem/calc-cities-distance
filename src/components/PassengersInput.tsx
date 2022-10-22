@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { FormControl, TextField } from '@mui/material';
 import { FieldValueType } from '../types';
+import { MainContext } from '../context/MainContext';
 
 interface PassengersInputProps {
   name: string;
@@ -14,13 +15,28 @@ const PassengersInput = ({
   setFormField,
 }: PassengersInputProps) => {
   const [quantity, setQuantity] = React.useState(1);
+  const [error, setError] = useState(false);
+
+  const { addGlobalError, removeGlobalError } = useContext(MainContext);
 
   useEffect(() => {
     setFormField(name, quantity);
   }, [quantity]);
 
+  useEffect(() => {
+    if (error) {
+      addGlobalError(name);
+    } else {
+      removeGlobalError(name);
+    }
+  }, [error]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setError(false);
     const value = e.target.value === '' ? 1 : Number(e.target.value);
+    if (value === 0) {
+      setError(true);
+    }
     setQuantity(value);
   };
 
@@ -34,7 +50,9 @@ const PassengersInput = ({
   return (
     <FormControl fullWidth>
       <TextField
+        name={name}
         label={label}
+        error={error}
         type="number"
         size="small"
         value={quantity}

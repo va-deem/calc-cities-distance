@@ -26,6 +26,7 @@
     "strictNullChecks": true
   },
   "include": [
+    "webpack.config.js",
     "src"
   ]
 }

@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
 import { TextField } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { FieldValueType } from '../types';
+import { MainContext } from '../context/MainContext';
 
 interface DatePickerProps {
   name: string;
@@ -14,10 +15,41 @@ interface DatePickerProps {
 
 const TripDatePicker = ({ name, label, setFormField }: DatePickerProps) => {
   const [dateValue, setDateValue] = React.useState<Dayjs | null>(null);
+  const [error, setError] = useState(false);
+  const didMountRef = useRef(false);
+
+  const { addGlobalError, removeGlobalError, errorsCheck } =
+    useContext(MainContext);
 
   useEffect(() => {
-    setFormField(name, dateValue);
-  }, [dateValue]);
+    if (errorsCheck) {
+      didMountRef.current = true;
+    }
+  }, [errorsCheck]);
+
+  useEffect(() => {
+    if (error) {
+      addGlobalError(name);
+    } else if (didMountRef.current) {
+      removeGlobalError(name);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    const isInvalid =
+      dateValue === null ||
+      !dateValue?.isValid() ||
+      !dateValue?.isAfter(dayjs());
+
+    if (isInvalid && didMountRef.current) {
+      setError(true);
+    } else {
+      setError(false);
+      setFormField(name, dateValue);
+    }
+
+    didMountRef.current = true;
+  }, [dateValue, errorsCheck]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -26,8 +58,13 @@ const TripDatePicker = ({ name, label, setFormField }: DatePickerProps) => {
         inputFormat="DD.MM.YYYY"
         value={dateValue}
         minDate={dayjs().add(1, 'day')}
+        onError={(reason, _value) => {
+          setError(!!reason);
+        }}
         onChange={(newValue: Dayjs | null) => setDateValue(newValue)}
-        renderInput={(params) => <TextField {...params} size="small" />}
+        renderInput={(params) => (
+          <TextField {...params} size="small" required error={error} />
+        )}
       />
     </LocalizationProvider>
   );

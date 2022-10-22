@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Box, Paper, Typography } from '@mui/material';
 import dayjs from 'dayjs';
-import getPlaces from '../services/getPlaces';
+import getCities from '../services/getCities';
 import calcDistance from '../services/calcDistance';
 import { PlaceType } from '../types';
 import getCitiesOnly from '../utils/getCititesOnly';
@@ -23,7 +23,7 @@ const RouteInfo = () => {
   const calculateDistances = async (parameters: [string, string][]) => {
     if (!parameters || parameters.length === 0) throw Error('no params');
 
-    const places = await getPlaces();
+    const places = await getCities();
 
     const newDistances = [];
     for (let i = 1; i < cities.length; i += 1) {
@@ -31,14 +31,16 @@ const RouteInfo = () => {
       const prevCity = places.find((c) => c[0] === cities[i - 1]);
       const [currentCityName, ...currentCityCoords] = currentCity as PlaceType;
       const [prevCityName, ...prevCityCoords] = prevCity as PlaceType;
-      const distance = calcDistance(currentCityCoords, prevCityCoords);
-      newDistances.push({
-        from: prevCityName,
-        to: currentCityName,
-        distance,
-      });
+      newDistances.push(
+        calcDistance({
+          from: prevCityName,
+          to: currentCityName,
+          currentCityCoords,
+          prevCityCoords,
+        })
+      );
     }
-    return newDistances;
+    return Promise.all(newDistances);
   };
 
   const calculateTotal = (distanceEntries: IDistance[]) =>
@@ -52,7 +54,6 @@ const RouteInfo = () => {
     });
   }, [params]);
 
-  console.log('DISTANCES', distances);
   return (
     <Paper elevation={3} sx={{ m: 2, p: 4 }}>
       <Box sx={{ minWidth: 400 }}>
@@ -65,8 +66,9 @@ const RouteInfo = () => {
         <Typography variant="h6" mb={2}>
           Calculations:
         </Typography>
-        {distances?.map((d) => (
-          <p>
+        {distances?.map((d, idx) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <p key={idx}>
             {d.from} - {d.to}: {d.distance.toFixed(2)} km
           </p>
         ))}

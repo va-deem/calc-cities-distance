@@ -13,3 +13,9 @@ export interface ICityField {
 export interface FormValues {
   [key: string]: FieldValueType;
 }
+
+export interface IContext {
+  addGlobalError: (name: string) => void;
+  removeGlobalError: (name: string) => void;
+  errorsCheck: boolean;
+}

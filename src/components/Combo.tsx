@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
-import CircularProgress from '@mui/material/CircularProgress';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { Autocomplete, CircularProgress, TextField } from '@mui/material';
+import getCities from '../services/getCities';
 import { PlaceType } from '../types';
-import getPlaces from '../services/getPlaces';
+import { MainContext } from '../context/MainContext';
 
 interface ComboProps {
   name: string;
@@ -11,58 +10,73 @@ interface ComboProps {
   setFormField: (name: string, value: PlaceType | null) => void;
 }
 
-const Combo = ({ name, label, setFormField }: ComboProps) => {
-  const [open, setOpen] = useState(false);
-  const [options, setOptions] = useState<PlaceType[]>([]);
+const Combo2 = ({ name, label, setFormField }: ComboProps) => {
+  const [inputValue, setInputValue] = useState('');
   const [value, setValue] = useState<PlaceType | null>(null);
-  const loading = open && options.length === 0;
+  const [options, setOptions] = useState<PlaceType[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const didMountRef = useRef(false);
+
+  const { addGlobalError, removeGlobalError, errorsCheck } =
+    useContext(MainContext);
 
   useEffect(() => {
-    const fetchData = async () => setOptions(await getPlaces());
-
-    if (open) {
-      fetchData();
-    } else {
-      setOptions([]);
+    if (errorsCheck) {
+      didMountRef.current = true;
     }
-  }, [open]);
+  }, [errorsCheck]);
 
   useEffect(() => {
-    setFormField(name, value);
-  }, [value]);
+    setOptions([]);
+    if (inputValue.length > 0) {
+      setIsLoading(true);
+      const fetchData = async () => setOptions(await getCities());
+      fetchData().then(() => setIsLoading(false));
+    }
+  }, [inputValue]);
+
+  useEffect(() => {
+    if (value === null && didMountRef.current) {
+      setError(true);
+      addGlobalError(name);
+    } else {
+      didMountRef.current && removeGlobalError(name);
+      setError(false);
+      setFormField(name, value);
+    }
+
+    didMountRef.current = true;
+  }, [value, errorsCheck]);
 
   return (
-    <Autocomplete
-      id={name}
-      options={options}
-      sx={{ width: 300 }}
-      size="small"
-      open={open}
-      onOpen={() => {
-        setOpen(true);
-      }}
-      onClose={() => {
-        setOpen(false);
-      }}
-      value={value}
-      onChange={(event: any, newValue: PlaceType | null) => {
-        setValue(newValue);
-      }}
-      isOptionEqualToValue={(option, v) => {
-        return option[0] === v[0];
-      }}
-      getOptionLabel={(option) => option?.[0] || ''}
-      loading={loading}
-      renderInput={(params) => {
-        return (
+    <div>
+      <Autocomplete
+        loading={isLoading}
+        inputValue={inputValue}
+        selectOnFocus
+        clearOnBlur
+        onChange={(event: any, newValue: PlaceType | null) => {
+          setValue(newValue);
+        }}
+        onInputChange={(event, v) => setInputValue(v)}
+        id={name}
+        value={value}
+        size="small"
+        options={options}
+        getOptionLabel={(option) => option?.[0] || ''}
+        style={{ width: 300 }}
+        renderInput={(params) => (
           <TextField
             {...params}
+            required
             label={label}
+            error={error}
             InputProps={{
               ...params.InputProps,
               endAdornment: (
                 <>
-                  {loading ? (
+                  {isLoading && inputValue.length && !value ? (
                     <CircularProgress color="inherit" size={20} />
                   ) : null}
                   {params.InputProps.endAdornment}
@@ -70,10 +84,10 @@ const Combo = ({ name, label, setFormField }: ComboProps) => {
               ),
             }}
           />
-        );
-      }}
-    />
+        )}
+      />
+    </div>
   );
 };
 
-export default Combo;
+export default Combo2;
