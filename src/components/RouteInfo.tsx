@@ -1,81 +1,90 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Box, Paper, Typography } from '@mui/material';
+import { Box, CircularProgress, Paper, Typography } from '@mui/material';
 import dayjs from 'dayjs';
-import getCities from '../services/getCities';
-import calcDistance from '../services/calcDistance';
-import { PlaceType } from '../types';
 import getCitiesOnly from '../utils/getCititesOnly';
-
-interface IDistance {
-  from: string;
-  to: string;
-  distance: number;
-}
+import calculateDistances from '../utils/calculateDistances';
+import calculateTotal from '../utils/calculateTotal';
+import { IDistance } from '../types';
 
 const RouteInfo = () => {
   const [searchParams] = useSearchParams();
   const [distances, setDistances] = useState<IDistance[] | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const params = Array.from(searchParams.entries());
 
-  const cities = useMemo(() => getCitiesOnly(params), [params]);
-
-  const calculateDistances = async (parameters: [string, string][]) => {
-    if (!parameters || parameters.length === 0) throw Error('no params');
-
-    const places = await getCities();
-
-    const newDistances = [];
-    for (let i = 1; i < cities.length; i += 1) {
-      const currentCity = places.find((c) => c[0] === cities[i]);
-      const prevCity = places.find((c) => c[0] === cities[i - 1]);
-      const [currentCityName, ...currentCityCoords] = currentCity as PlaceType;
-      const [prevCityName, ...prevCityCoords] = prevCity as PlaceType;
-      newDistances.push(
-        calcDistance({
-          from: prevCityName,
-          to: currentCityName,
-          currentCityCoords,
-          prevCityCoords,
-        })
-      );
-    }
-    return Promise.all(newDistances);
-  };
-
-  const calculateTotal = (distanceEntries: IDistance[]) =>
-    distanceEntries.reduce((acc: number, item) => acc + item.distance, 0);
-
   useEffect(() => {
-    calculateDistances(params).then((data) => {
-      if (!distances) {
+    setIsLoading(true);
+    calculateDistances(params)
+      .then((data) => {
         setDistances(data);
-      }
-    });
-  }, [params]);
+      })
+      .catch((err) => {
+        setError(err);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
+
+  const citiesFromParams = useMemo(() => getCitiesOnly(params), [params]);
 
   return (
-    <Paper elevation={3} sx={{ m: 2, p: 4 }}>
-      <Box sx={{ minWidth: 400 }}>
-        <Typography variant="h5" mb={2}>
-          Results
-        </Typography>
-        <p>Your route: {cities.join(' - ')}</p>
-        <p>Date: {dayjs(searchParams.get('date')).format('DD MMMM YYYY')}</p>
-        <p>Passengers: {searchParams.get('quantity')}</p>
-        <Typography variant="h6" mb={2}>
-          Calculations:
-        </Typography>
-        {distances?.map((d, idx) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <p key={idx}>
-            {d.from} - {d.to}: {d.distance.toFixed(2)} km
+    <Paper elevation={3} sx={{ m: 2, px: 8, py: 4, width: 400 }}>
+      <Box
+        sx={{ minHeight: 550 }}
+        minWidth="400"
+        display="flex"
+        flexDirection="column"
+        justifyItems="space-between"
+      >
+        <Box>
+          <Box mb={4}>
+            <h1>Results</h1>
+          </Box>
+          <p>Your route: {citiesFromParams.join(' - ')}</p>
+          <p>Date: {dayjs(searchParams.get('date')).format('DD MMMM YYYY')}</p>
+          <p>Passengers: {searchParams.get('quantity')}</p>
+          <Typography variant="h6" mb={2}>
+            Calculations:
+          </Typography>
+          {distances?.map((d, idx) => (
+            <p key={idx}>
+              {d.from} - {d.to}: {d.distance} km
+            </p>
+          ))}
+          <div>
+            {error && (
+              <Box sx={{ color: 'red ' }}>{`Error! ${error.message}`}</Box>
+            )}
+            {isLoading && (
+              <Box>
+                <CircularProgress size={16} />
+              </Box>
+            )}
+            {distances && (
+              <Typography
+                sx={{ fontWeight: 'bold' }}
+              >{`Total distance: ${calculateTotal(distances)} km`}</Typography>
+            )}
+          </div>
+        </Box>
+        <Box mt="auto">
+          <p>
+            <Link
+              to={`/?${new URLSearchParams(searchParams)}`}
+              className="visited-link"
+            >
+              Back to the last search
+            </Link>
           </p>
-        ))}
-        <p>
-          Total distance: {distances && calculateTotal(distances).toFixed(2)}
-        </p>
-        <Link to="/">Home</Link>
+          <p>
+            <Link to="/" className="visited-link">
+              Back to start
+            </Link>
+          </p>
+        </Box>
       </Box>
     </Paper>
   );

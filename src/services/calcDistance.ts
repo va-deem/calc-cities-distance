@@ -1,24 +1,16 @@
-interface IDistanceData {
-  from: string;
-  to: string;
-  currentCityCoords: number[];
-  prevCityCoords: number[];
-}
+import { PlaceType } from '../types';
+import sleep from '../utils/sleep';
 
-const calcDistance = async ({
-  from,
-  to,
-  currentCityCoords,
-  prevCityCoords,
-}: IDistanceData) => {
-  const [lat1, lon1] = currentCityCoords;
-  const [lat2, lon2] = prevCityCoords;
+const calcDistance = async (
+  origin: PlaceType | undefined,
+  destination: PlaceType | undefined
+) => {
+  if (!origin || !destination) throw Error('Wrong of no params given');
 
-  const sleep = (delay = 0) =>
-    new Promise((resolve) => {
-      setTimeout(resolve, delay);
-    });
+  const [originName, lat1, lon1] = origin;
+  const [destinationName, lat2, lon2] = destination;
 
+  // Mock some heavy calculating
   await sleep(1e3);
 
   const toRadian = (angle: number) => (Math.PI / 180) * angle;
@@ -37,7 +29,12 @@ const calcDistance = async ({
     Math.sin(dLon / 2) ** 2 * Math.cos(lat1R) * Math.cos(lat2R);
   const c = 2 * Math.asin(Math.sqrt(a));
 
-  return { from, to, distance: RADIUS_OF_EARTH_IN_KM * c };
+  return {
+    from: originName,
+    to: destinationName,
+    // Let's round the distance to the nearest integer
+    distance: Math.round(RADIUS_OF_EARTH_IN_KM * c),
+  };
 };
 
 export default calcDistance;

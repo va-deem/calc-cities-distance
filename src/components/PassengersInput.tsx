@@ -7,17 +7,25 @@ interface PassengersInputProps {
   name: string;
   label: string;
   setFormField: (name: string, value: FieldValueType) => void;
+  initialValue: number | null;
 }
 
 const PassengersInput = ({
   name,
   label,
   setFormField,
+  initialValue,
 }: PassengersInputProps) => {
   const [quantity, setQuantity] = React.useState(1);
   const [error, setError] = useState(false);
 
   const { addGlobalError, removeGlobalError } = useContext(MainContext);
+
+  useEffect(() => {
+    if (initialValue) {
+      setQuantity(initialValue);
+    }
+  }, [initialValue]);
 
   useEffect(() => {
     setFormField(name, quantity);

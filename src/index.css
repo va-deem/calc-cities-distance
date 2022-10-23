@@ -1,7 +1,8 @@
 html, body {
+    font-family: 'Roboto', sans-serif;
     height: 100%;
     margin: 0;
-    font-family: 'Roboto', sans-serif;
+    background-color: #ebeef4;
 }
 
 #root {
@@ -9,4 +10,8 @@ html, body {
     align-items: center;
     justify-content: center;
     height: 100vh;
+}
+
+.visited-link {
+    color: #000000;
 }

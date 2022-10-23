@@ -1,25 +1,31 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Autocomplete, CircularProgress, TextField } from '@mui/material';
-import getCities from '../services/getCities';
-import { PlaceType } from '../types';
+import { getCities } from '../services/getCities';
 import { MainContext } from '../context/MainContext';
 
 interface ComboProps {
   name: string;
   label: string;
-  setFormField: (name: string, value: PlaceType | null) => void;
+  setFormField: (name: string, value: string | null) => void;
+  initialValue: string | null;
 }
 
-const Combo2 = ({ name, label, setFormField }: ComboProps) => {
+const Combo = ({ name, label, setFormField, initialValue }: ComboProps) => {
   const [inputValue, setInputValue] = useState('');
-  const [value, setValue] = useState<PlaceType | null>(null);
-  const [options, setOptions] = useState<PlaceType[]>([]);
+  const [value, setValue] = useState<string | null>(null);
+  const [options, setOptions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
   const didMountRef = useRef(false);
 
   const { addGlobalError, removeGlobalError, errorsCheck } =
     useContext(MainContext);
+
+  useEffect(() => {
+    if (initialValue) {
+      setValue(initialValue);
+    }
+  }, [initialValue]);
 
   useEffect(() => {
     if (errorsCheck) {
@@ -28,21 +34,28 @@ const Combo2 = ({ name, label, setFormField }: ComboProps) => {
   }, [errorsCheck]);
 
   useEffect(() => {
-    setOptions([]);
     if (inputValue.length > 0) {
       setIsLoading(true);
-      const fetchData = async () => setOptions(await getCities());
-      fetchData().then(() => setIsLoading(false));
+      getCities(inputValue)
+        .then((data) => {
+          setOptions(data.map((el) => el[0]));
+        })
+        .catch((err) => {
+          setError(err);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
   }, [inputValue]);
 
   useEffect(() => {
     if (value === null && didMountRef.current) {
-      setError(true);
+      setError(new Error('Error'));
       addGlobalError(name);
-    } else {
-      didMountRef.current && removeGlobalError(name);
-      setError(false);
+    } else if (didMountRef.current) {
+      removeGlobalError(name);
+      setError(null);
       setFormField(name, value);
     }
 
@@ -54,9 +67,10 @@ const Combo2 = ({ name, label, setFormField }: ComboProps) => {
       <Autocomplete
         loading={isLoading}
         inputValue={inputValue}
+        freeSolo
         selectOnFocus
         clearOnBlur
-        onChange={(event: any, newValue: PlaceType | null) => {
+        onChange={(event: any, newValue: string | null) => {
           setValue(newValue);
         }}
         onInputChange={(event, v) => setInputValue(v)}
@@ -64,14 +78,14 @@ const Combo2 = ({ name, label, setFormField }: ComboProps) => {
         value={value}
         size="small"
         options={options}
-        getOptionLabel={(option) => option?.[0] || ''}
         style={{ width: 300 }}
         renderInput={(params) => (
           <TextField
             {...params}
             required
             label={label}
-            error={error}
+            error={!!error}
+            helperText={error?.message.includes('fail') && error?.message}
             InputProps={{
               ...params.InputProps,
               endAdornment: (
@@ -90,4 +104,4 @@ const Combo2 = ({ name, label, setFormField }: ComboProps) => {
   );
 };
 
-export default Combo2;
+export default Combo;

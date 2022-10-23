@@ -1,14 +1,23 @@
-import data from '../data/data';
+import cities from '../data/data';
+import sleep from '../utils/sleep';
 
-const sleep = (delay = 0) =>
-  new Promise((resolve) => {
-    setTimeout(resolve, delay);
-  });
-
-const getCities = async () => {
+export const getCities = async (query: string) => {
   await sleep(1e3);
 
-  return data;
+  if (/fail/i.test(query))
+    throw new Error("It's a 'fail' error, please enter a valid city");
+
+  return cities.filter((city) =>
+    city[0].toLowerCase().includes(query.toLowerCase())
+  );
 };
 
-export default getCities;
+export const getUniqueCity = async (name: string) => {
+  await sleep(1e3);
+
+  if (/dijon/i.test(name)) throw Error("'Dijon' is not allowed here");
+
+  return cities.find((city) =>
+    city[0].toLowerCase().includes(name.toLowerCase())
+  );
+};

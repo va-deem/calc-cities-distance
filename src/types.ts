@@ -2,20 +2,27 @@ import { Dayjs } from 'dayjs';
 
 export type PlaceType = [string, number, number];
 
-export type FieldValueType = PlaceType | Dayjs | number | null;
+export type FieldValueType = Dayjs | number | null;
 
 export interface ICityField {
   name: string;
   label: string;
-  value: PlaceType | null;
+  value: string | null;
 }
 
-export interface FormValues {
-  [key: string]: FieldValueType;
+export interface IOtherFormValues {
+  date: Dayjs | null;
+  quantity: number | null;
 }
 
 export interface IContext {
   addGlobalError: (name: string) => void;
   removeGlobalError: (name: string) => void;
   errorsCheck: boolean;
+}
+
+export interface IDistance {
+  from: string;
+  to: string;
+  distance: number;
 }

@@ -1,7 +1,10 @@
 import dayjs from 'dayjs';
-import { FieldValueType, FormValues, ICityField } from '../types';
+import { FieldValueType, IOtherFormValues, ICityField } from '../types';
 
-const processFormData = (formValues: FormValues, cityFields: ICityField[]) => {
+const processFormData = (
+  formValues: IOtherFormValues,
+  cityFields: ICityField[]
+) => {
   const newFormValues = Object.entries(formValues).map(
     (el: [string, FieldValueType]): [string, string] => {
       const [name, value] = el;
@@ -16,7 +19,7 @@ const processFormData = (formValues: FormValues, cityFields: ICityField[]) => {
 
   const newCityFields = cityFields.map((f, idx): [string, string] => {
     const name = `city_${idx}`;
-    const value = Array.isArray(f.value) ? f.value[0] : '';
+    const value = f.value || '';
     return [name, value];
   });
 

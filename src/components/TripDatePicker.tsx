@@ -11,15 +11,27 @@ interface DatePickerProps {
   name: string;
   label: string;
   setFormField: (name: string, value: FieldValueType) => void;
+  initialValue: Dayjs | null;
 }
 
-const TripDatePicker = ({ name, label, setFormField }: DatePickerProps) => {
+const TripDatePicker = ({
+  name,
+  label,
+  setFormField,
+  initialValue,
+}: DatePickerProps) => {
   const [dateValue, setDateValue] = React.useState<Dayjs | null>(null);
   const [error, setError] = useState(false);
   const didMountRef = useRef(false);
 
   const { addGlobalError, removeGlobalError, errorsCheck } =
     useContext(MainContext);
+
+  useEffect(() => {
+    if (initialValue) {
+      setDateValue(initialValue);
+    }
+  }, [initialValue]);
 
   useEffect(() => {
     if (errorsCheck) {
@@ -58,7 +70,7 @@ const TripDatePicker = ({ name, label, setFormField }: DatePickerProps) => {
         inputFormat="DD.MM.YYYY"
         value={dateValue}
         minDate={dayjs().add(1, 'day')}
-        onError={(reason, _value) => {
+        onError={(reason) => {
           setError(!!reason);
         }}
         onChange={(newValue: Dayjs | null) => setDateValue(newValue)}
