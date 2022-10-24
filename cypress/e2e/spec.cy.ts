@@ -5,7 +5,7 @@ describe('testing main form', () => {
     cy.get('input#origin').should('have.value', '');
     cy.get('input#destination').should('have.value', '');
     cy.get('input[name="date"]').should('have.value', '');
-    cy.get('input[name="quantity"]').should('have.value', '1');
+    cy.get('input[name="quantity"]').should('have.value', '');
     cy.get('button[type=button]').contains('Add intermediate cities');
     cy.get('button[type=submit]').contains('Go!');
   });
@@ -64,19 +64,19 @@ describe('testing main form', () => {
     cy.get('li').contains(`Paris`).click();
     cy.get('input#destination').should('have.value', 'Paris');
     cy.get('input[name="date"]').type('27.11.2024');
-    cy.get('input[name="quantity"]').type('0');
-    cy.get('input[name="quantity"]').should('have.value', '10');
+    cy.get('input[name="quantity"]').type('3');
+    cy.get('input[name="quantity"]').should('have.value', '3');
     cy.wait(2000);
     cy.get('button[type=submit]').click();
     cy.on('url:changed', (newUrl) => {
       expect(newUrl).to.contain(
-        '?date=2024-11-27&quantity=10&city_0=Marseille&city_1=Paris'
+        '?date=2024-11-27&quantity=3&city_0=Marseille&city_1=Paris'
       );
     });
     cy.get('body').contains('Results');
     cy.get('body').contains('Your route: Marseille - Paris');
     cy.get('body').contains('Date: 27 November 2024');
-    cy.get('body').contains('Passengers: 10');
+    cy.get('body').contains('Passengers: 3');
     cy.get('body').contains('Calculations:');
     cy.wait(5000);
     cy.get('body').contains('Marseille - Paris: 660 km');

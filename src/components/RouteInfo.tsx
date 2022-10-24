@@ -31,7 +31,16 @@ const RouteInfo = () => {
   const citiesFromParams = useMemo(() => getCitiesOnly(params), [params]);
 
   return (
-    <Paper elevation={3} sx={{ m: 2, px: 8, py: 4, width: 400 }}>
+    <Paper
+      elevation={3}
+      sx={{
+        m: 2,
+        px: 8,
+        py: 4,
+        minWidth: 375,
+        maxWidth: 400,
+      }}
+    >
       <Box
         sx={{ minHeight: 550 }}
         minWidth="400"

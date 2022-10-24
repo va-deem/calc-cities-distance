@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DesktopDatePicker } from '@mui/x-date-pickers';
+import { DatePicker } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
 import { TextField } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -65,7 +65,7 @@ const TripDatePicker = ({
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DesktopDatePicker
+      <DatePicker
         label={label}
         inputFormat="DD.MM.YYYY"
         value={dateValue}
@@ -78,6 +78,7 @@ const TripDatePicker = ({
           <TextField
             {...params}
             size="small"
+            fullWidth
             required
             error={error}
             name="date"

@@ -182,9 +182,16 @@ const Main = () => {
     <MainContext.Provider value={contextValue}>
       <Paper
         elevation={3}
-        sx={{ m: 2, px: 8, py: 4, width: 400, minHeight: 550 }}
+        sx={{
+          m: 2,
+          px: 8,
+          py: 4,
+          minWidth: 375,
+          maxWidth: 400,
+          minHeight: 550,
+        }}
       >
-        <Box mb={4}>
+        <Box mb={4} px={{ xs: 1, sm: 2, md: 3 }}>
           <h1>Calculate the distance</h1>
         </Box>
         <form onSubmit={handleSubmit} noValidate>
@@ -192,7 +199,7 @@ const Main = () => {
             {fields.map((f, idx: number) =>
               renderPlaceInput(f.name, f.label, f.value, idx)
             )}
-            <Grid item xs={12}>
+            <Grid item xs={8}>
               <TripDatePicker
                 name="date"
                 label="Date of the trip"
@@ -200,7 +207,7 @@ const Main = () => {
                 initialValue={formValues?.date}
               />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={6}>
               <PassengersInput
                 name="quantity"
                 label="Passengers"

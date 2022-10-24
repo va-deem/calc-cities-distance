@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { FormControl, TextField } from '@mui/material';
 import { FieldValueType } from '../types';
 import { MainContext } from '../context/MainContext';
@@ -16,44 +16,47 @@ const PassengersInput = ({
   setFormField,
   initialValue,
 }: PassengersInputProps) => {
-  const [quantity, setQuantity] = React.useState(1);
+  const [quantity, setQuantity] = React.useState<null | string>('');
   const [error, setError] = useState(false);
+  const didMountRef = useRef(false);
 
-  const { addGlobalError, removeGlobalError } = useContext(MainContext);
+  const { addGlobalError, removeGlobalError, errorsCheck } =
+    useContext(MainContext);
 
   useEffect(() => {
     if (initialValue) {
-      setQuantity(initialValue);
+      setQuantity(String(initialValue));
     }
   }, [initialValue]);
 
   useEffect(() => {
-    setFormField(name, quantity);
+    setFormField(name, Number(quantity));
   }, [quantity]);
+
+  useEffect(() => {
+    if (errorsCheck) {
+      didMountRef.current = true;
+    }
+  }, [errorsCheck]);
 
   useEffect(() => {
     if (error) {
       addGlobalError(name);
-    } else {
+    } else if (didMountRef.current) {
       removeGlobalError(name);
     }
   }, [error]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setError(false);
-    const value = e.target.value === '' ? 1 : Number(e.target.value);
-    if (value === 0) {
+  useEffect(() => {
+    if (Number(quantity) <= 0 && didMountRef.current) {
       setError(true);
+    } else {
+      setError(false);
+      setFormField(name, Number(quantity));
     }
-    setQuantity(value);
-  };
 
-  const keepNumbers = (e: React.KeyboardEvent) => {
-    const hasSymbol = ['e', 'E', '+', '-', '.', ',', ' ', 'Spacebar'].includes(
-      e.key
-    );
-    return hasSymbol && e.preventDefault();
-  };
+    didMountRef.current = true;
+  }, [quantity, errorsCheck]);
 
   return (
     <FormControl fullWidth>
@@ -61,12 +64,19 @@ const PassengersInput = ({
         name={name}
         label={label}
         error={error}
-        type="number"
+        type="string"
         size="small"
+        required
+        onError={(reason) => {
+          setError(!!reason);
+        }}
         value={quantity}
-        onChange={handleChange}
-        onKeyDown={keepNumbers}
-        inputProps={{ min: 1 }}
+        onChange={(event) => setQuantity(event.target.value)}
+        onKeyPress={(event) => {
+          if (!/[0-9]/.test(event.key)) {
+            event.preventDefault();
+          }
+        }}
       />
     </FormControl>
   );

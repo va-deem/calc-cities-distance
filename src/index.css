@@ -5,6 +5,10 @@ html, body {
     background-color: #ebeef4;
 }
 
+* {
+    box-sizing: border-box;
+}
+
 #root {
     display: flex;
     align-items: center;
