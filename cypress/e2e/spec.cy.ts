@@ -20,7 +20,6 @@ describe('testing main form', () => {
     cy.get('button[type=button]').contains('Add intermediate cities').click();
     cy.get('input').then(($elements) => {
       const countOfElements = $elements.length;
-      console.log(countOfElements);
       expect(countOfElements).to.equal(5);
     });
   });

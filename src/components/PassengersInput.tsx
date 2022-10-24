@@ -48,7 +48,6 @@ const PassengersInput = ({
   }, [error]);
 
   useEffect(() => {
-    console.log('quantity', quantity);
     if ((!quantity || Number(quantity) <= 0) && didMountRef.current) {
       setError(true);
     } else {

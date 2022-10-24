@@ -177,7 +177,7 @@ const Main = () => {
       </Grid>
     </Fragment>
   );
-  console.log(formValues?.quantity);
+
   return (
     <MainContext.Provider value={contextValue}>
       <Paper
@@ -191,9 +191,7 @@ const Main = () => {
           minHeight: 550,
         }}
       >
-        <Box mb={4} px={{ xs: 1, sm: 2, md: 3 }}>
-          <h1>Calculate the distance</h1>
-        </Box>
+        <h1>Calculate distances</h1>
         <form onSubmit={handleSubmit} noValidate>
           <Grid container spacing={3}>
             {fields.map((f, idx: number) =>
