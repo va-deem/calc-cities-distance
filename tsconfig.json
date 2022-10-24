@@ -27,6 +27,10 @@
   },
   "include": [
     "webpack.config.js",
-    "src"
-  ]
+    "cypress.config.ts",
+    "src",
+    "__tests__",
+    "cypress"
+  ],
+  "exclude": ["node_modules"]
 }

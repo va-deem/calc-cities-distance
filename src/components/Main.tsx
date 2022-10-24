@@ -168,6 +168,7 @@ const Main = () => {
           <IconButton
             aria-label="delete"
             onClick={() => handleRemoveField(name)}
+            id="delete-btn"
             sx={{ position: 'absolute', left: -24, top: 24 }}
           >
             <HighlightOff />

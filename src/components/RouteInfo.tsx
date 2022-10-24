@@ -43,16 +43,16 @@ const RouteInfo = () => {
           <Box mb={4}>
             <h1>Results</h1>
           </Box>
-          <p>Your route: {citiesFromParams.join(' - ')}</p>
-          <p>Date: {dayjs(searchParams.get('date')).format('DD MMMM YYYY')}</p>
-          <p>Passengers: {searchParams.get('quantity')}</p>
+          <p>{`Your route: ${citiesFromParams.join(' - ')}`}</p>
+          <p>{`Date: ${dayjs(searchParams.get('date')).format(
+            'DD MMMM YYYY'
+          )}`}</p>
+          <p>{`Passengers: ${searchParams.get('quantity')}`}</p>
           <Typography variant="h6" mb={2}>
             Calculations:
           </Typography>
           {distances?.map((d, idx) => (
-            <p key={idx}>
-              {d.from} - {d.to}: {d.distance} km
-            </p>
+            <p key={idx}>{`${d.from} - ${d.to}: ${d.distance} km`}</p>
           ))}
           <div>
             {error && (

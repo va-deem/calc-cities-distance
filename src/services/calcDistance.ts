@@ -5,7 +5,7 @@ const calcDistance = async (
   origin: PlaceType | undefined,
   destination: PlaceType | undefined
 ) => {
-  if (!origin || !destination) throw Error('Wrong of no params given');
+  if (!origin || !destination) throw Error('Wrong or no params given');
 
   const [originName, lat1, lon1] = origin;
   const [destinationName, lat2, lon2] = destination;

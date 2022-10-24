@@ -75,7 +75,13 @@ const TripDatePicker = ({
         }}
         onChange={(newValue: Dayjs | null) => setDateValue(newValue)}
         renderInput={(params) => (
-          <TextField {...params} size="small" required error={error} />
+          <TextField
+            {...params}
+            size="small"
+            required
+            error={error}
+            name="date"
+          />
         )}
       />
     </LocalizationProvider>
