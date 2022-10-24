@@ -26,7 +26,8 @@
     "strictNullChecks": true
   },
   "include": [
-    "webpack.config.js",
+    "webpack.dev.config.js",
+    "webpack.prod.config.js",
     "cypress.config.ts",
     "src",
     "__tests__",

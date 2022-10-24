@@ -1,9 +1,10 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 module.exports = {
-  entry: './index.js',
   mode: 'development',
+  entry: './src/index.tsx',
   output: {
     path: path.resolve(__dirname, './dist'),
     filename: 'index_bundle.js',
@@ -45,6 +46,9 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'public', 'index.html'),
+    }),
+    new ForkTsCheckerWebpackPlugin({
+      async: false,
     }),
   ],
   devtool: 'source-map',
