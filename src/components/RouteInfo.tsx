@@ -35,7 +35,7 @@ const RouteInfo = () => {
       elevation={3}
       sx={{
         m: 2,
-        px: 8,
+        px: 6,
         py: 4,
         minWidth: 375,
         maxWidth: 400,

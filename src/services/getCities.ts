@@ -17,7 +17,5 @@ export const getUniqueCity = async (name: string) => {
 
   if (/dijon/i.test(name)) throw Error("'Dijon' is not allowed here");
 
-  return cities.find((city) =>
-    city[0].toLowerCase().includes(name.toLowerCase())
-  );
+  return cities.find((city) => city[0].toLowerCase() === name.toLowerCase());
 };

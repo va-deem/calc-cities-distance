@@ -7,8 +7,8 @@ import ErrorPage from './ErrorPage';
 const App = () => (
   <BrowserRouter>
     <Routes>
-      <Route path="/" element={<Main />} />
       <Route path="/info" element={<RouteInfo />} />
+      <Route path="/" element={<Main />} />
       <Route path="*" element={<ErrorPage />} />
     </Routes>
   </BrowserRouter>

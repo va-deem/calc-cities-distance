@@ -12,7 +12,7 @@ export interface ICityField {
 
 export interface IOtherFormValues {
   date: Dayjs | null;
-  quantity: number | null;
+  quantity: string | null;
 }
 
 export interface IContext {

@@ -7,7 +7,7 @@ interface PassengersInputProps {
   name: string;
   label: string;
   setFormField: (name: string, value: FieldValueType) => void;
-  initialValue: number | null;
+  initialValue: string | null;
 }
 
 const PassengersInput = ({
@@ -48,7 +48,8 @@ const PassengersInput = ({
   }, [error]);
 
   useEffect(() => {
-    if (Number(quantity) <= 0 && didMountRef.current) {
+    console.log('quantity', quantity);
+    if ((!quantity || Number(quantity) <= 0) && didMountRef.current) {
       setError(true);
     } else {
       setError(false);

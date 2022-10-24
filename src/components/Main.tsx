@@ -45,13 +45,13 @@ const Main = () => {
   useEffect(() => {
     const allFields = splitParams(params);
 
-    // Set other date and quantity values initially
+    // Set 'date' and 'quantity' values initially
     const res: IOtherFormValues = { date: null, quantity: null };
     res.date = allFields.otherFields.date
       ? dayjs(allFields.otherFields.date)
       : null;
-    res.quantity = Number(allFields.otherFields.quantity);
-    allFields.otherFields.quantity && setFormValues(res);
+    res.quantity = allFields.otherFields.quantity || null;
+    setFormValues(res);
 
     // Set cities values initially
     const origin = allFields.cities.shift();
@@ -169,7 +169,7 @@ const Main = () => {
             aria-label="delete"
             onClick={() => handleRemoveField(name)}
             id="delete-btn"
-            sx={{ position: 'absolute', left: -24, top: 24 }}
+            sx={{ position: 'absolute', left: -14, top: 24 }}
           >
             <HighlightOff />
           </IconButton>
@@ -177,14 +177,14 @@ const Main = () => {
       </Grid>
     </Fragment>
   );
-
+  console.log(formValues?.quantity);
   return (
     <MainContext.Provider value={contextValue}>
       <Paper
         elevation={3}
         sx={{
           m: 2,
-          px: 8,
+          px: 6,
           py: 4,
           minWidth: 375,
           maxWidth: 400,
